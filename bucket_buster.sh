@@ -2,28 +2,30 @@
 
 PROJECT_ID="test-functions-185602"
 LABEL_KEY="purpose"
-LABEL_VALUE="test"
-REGION="us-central1"
+LABEL_VALUE="maintenance"
 
-echo "Processing Google Cloud Storage buckets..."
+# Set the project
+gcloud config set project ${PROJECT_ID}
 
-BUCKETS=$(gsutil ls -p $PROJECT_ID)
-
-for BUCKET in $BUCKETS; do
-  echo "Updating $BUCKET with label $LABEL_KEY:$LABEL_VALUE"
-  CURRENT_LABELS=$(gsutil label get $BUCKET)
-  
-  # Remove the outermost curly braces
-  CURRENT_LABELS=$(echo $CURRENT_LABELS | sed 's/^{//;s/}$//')
-  
-  # If there are existing labels, append the new label
-  if [[ -n $CURRENT_LABELS ]]; then
-    UPDATED_LABELS="{$CURRENT_LABELS, \"$LABEL_KEY\":\"$LABEL_VALUE\"}"
-  else
-    UPDATED_LABELS="{\"$LABEL_KEY\":\"$LABEL_VALUE\"}"
-  fi
-
-  gsutil label set "$UPDATED_LABELS" $BUCKET
+# Label VPC networks
+for network in $(gcloud compute networks list --format="value(name)")
+do
+  gcloud compute networks update ${network} --update-labels ${LABEL_KEY}=${LABEL_VALUE}
 done
 
-echo "Google Cloud Storage bucket label update completed."
+# Label subnets
+for region in $(gcloud compute regions list --format="value(name)")
+do
+  for subnet in $(gcloud compute networks subnets list --regions ${region} --format="value(name)")
+  do
+    gcloud compute networks subnets update ${subnet} --region ${region} --update-labels ${LABEL_KEY}=${LABEL_VALUE}
+  done
+done
+
+# Label firewall rules
+for firewall in $(gcloud compute firewall-rules list --format="value(name)")
+do
+  gcloud compute firewall-rules update ${firewall} --update-labels ${LABEL_KEY}=${LABEL_VALUE}
+done
+
+echo "Network-related resources in project ${PROJECT_ID} have been labeled."

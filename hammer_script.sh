@@ -2,7 +2,7 @@
 
 PROJECT_ID="test-functions-185602"
 LABEL_KEY="purpose"
-LABEL_VALUE="maintenance"
+LABEL_VALUE="see-me"
 REGION="us-central1"
 ZONE="us-central1-a"
 
