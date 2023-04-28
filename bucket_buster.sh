@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT_ID="test-functions-185602"
+PROJECT_ID=""
 LABEL_KEY="purpose"
 LABEL_VALUE="maintenance"
 
